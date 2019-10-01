@@ -76,4 +76,13 @@ Cypress.Commands.add("clearQAData", (data)=>{ //clears data from Firebase (curre
         cy.get('span').should('contain','QA Cleared: OK');
     }
 })
+Cypress.Commands.add("waitForSpinner", () => {
+    cy.get('.progress', { timeout: 60000 }).should('not.exist')
+})
 
+Cypress.Commands.add("loginStaging", (username, password) => {
+    cy.visit("https://learn.concord.org/users/sign_in")
+    cy.get("input#user_login").type(username)
+    cy.get("input#user_password").type(password)
+    cy.get("form").submit()
+})

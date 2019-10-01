@@ -4,14 +4,15 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "cypress": "^3.4.1",
+    "cypress": "^3.4.1"
+  },
+  "devDependencies": {
     "cypress-commands": "^0.2.0"
   },
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "test:create_data": "npx cypress open",
-    "create_data":"npx cypress run ----config video=false,defaultCommandTimeout=8000"
+    "create_data": "npx cypress run ----config video=false,defaultCommandTimeout=8000"
   },
   "author": "",
   "license": "ISC"

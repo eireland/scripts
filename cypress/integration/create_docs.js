@@ -46,6 +46,66 @@ function getTilesArray(){
     }
     return tilesToAdd;
 }
+
+function addToTile(tile, user, title){
+    switch(tile){
+        case 'text':
+            textToolTile.enterText('User is '+user+' in Investigation '+title);
+            break;
+        case 'geomtery':
+            graphToolTile.addPointToGraph(getRandomNumber(15),getRandomNumber(15))
+            graphToolTile.addPointToGraph(getRandomNumber(15),getRandomNumber(15))
+            graphToolTile.addPointToGraph(getRandomNumber(15),getRandomNumber(15))
+             break;
+        case 'table':
+            tableToolTile.addNewRow();
+            tableToolTile.enterData(0, getRandomNumber(15))
+            tableToolTile.enterData(1, getRandomNumber(15))
+            tableToolTile.addNewRow();
+            tableToolTile.enterData(2, getRandomNumber(15))
+            tableToolTile.enterData(3, getRandomNumber(15))
+            tableToolTile.addNewRow();
+            tableToolTile.enterData(4, getRandomNumber(15))
+            tableToolTile.enterData(5, getRandomNumber(15))
+            tableToolTile.addNewRow();
+            tableToolTile.enterData(6, getRandomNumber(15))
+            tableToolTile.enterData(7, getRandomNumber(15))
+            break;
+        case 'image':
+            let images = ['fan.png','graph.png','image.png','folder.png','chair.png']
+            clueCanvas.addImageTile();
+            imageToolTile.getImageToolControl().last().click();
+            cy.uploadFile(imageToolTile.imageChooseFileButton(), images[getRandomNumber(images.length-1)], 'image/png')
+            cy.wait(3000);
+            break;
+        case 'drawing':
+                let toolArr=['line', 'rect', 'ellipse'];
+                let selectedShape = toolArr[getRandomNumber(2)];
+                clueCanvas.addTile('drawing');
+        
+                switch (selectedShape) {
+                    case 'line':
+                        drawToolTile.getDrawToolLine().first().click();
+                        break;
+                    case 'rect':
+                        drawToolTile.getDrawToolRectangle().first().click();
+                        break;
+                    case 'ellipse':
+                        drawToolTile.getDrawToolEllipse().first().click();
+                        break;        
+        
+                }
+                drawToolTile.getDrawTile().first()
+                    .trigger('mousedown')
+                    .trigger('mousemove',100,250)
+                    .trigger('mouseup')
+            break;    
+    }
+}
+
+function addTile(tile){
+    clueCanvas.addTile(tile);
+}
 before(()=>{
     cy.visit('https://collaborative-learning.concord.org/branch/master/?appMode=qa&fakeUser=student:9&qaGroup=9&fakeClass=9&problem=1.2')
     cy.wait(5000);
@@ -67,57 +127,57 @@ context('add content to document',()=>{
             clueCanvas.addTile(tile);
         })
     })
-    it('populate a tile',()=>{
-        if (tilesToAdd.includes('text')) {
-            textToolTile.enterText('User is '+userName+' in Investigation '+investigationTitle);
-        }
-        if (tilesToAdd.includes('geometry')) {
-            graphToolTile.addPointToGraph(getRandomNumber(15),getRandomNumber(15))
-            graphToolTile.addPointToGraph(getRandomNumber(15),getRandomNumber(15))
-            graphToolTile.addPointToGraph(getRandomNumber(15),getRandomNumber(15))
-        }
-        if (tilesToAdd.includes('table')) {
-            tableToolTile.addNewRow();
-            tableToolTile.enterData(0, getRandomNumber(15))
-            tableToolTile.enterData(1, getRandomNumber(15))
-            tableToolTile.addNewRow();
-            tableToolTile.enterData(2, getRandomNumber(15))
-            tableToolTile.enterData(3, getRandomNumber(15))
-            tableToolTile.addNewRow();
-            tableToolTile.enterData(4, getRandomNumber(15))
-            tableToolTile.enterData(5, getRandomNumber(15))
-            tableToolTile.addNewRow();
-            tableToolTile.enterData(6, getRandomNumber(15))
-            tableToolTile.enterData(7, getRandomNumber(15))
-        }
-        if (tilesToAdd.includes('image')) {
-            let images = ['fan.png','graph.png','image.png','folder.png','chair.png']
-            clueCanvas.addImageTile();
-            imageToolTile.getImageToolControl().last().click();
-            cy.uploadFile(imageToolTile.imageChooseFileButton(), images[getRandomNumber(images.length-1)], 'image/png')
-            cy.wait(3000)
-        }
-        if(tilesToAdd.includes('drawing')) {
-            let toolArr=['line', 'rect', 'ellipse'];
-            let selectedShape = toolArr[getRandomNumber(2)];
-            clueCanvas.addTile('drawing');
+    // it('populate a tile',()=>{
+        // if (tilesToAdd.includes('text')) {
+        //     textToolTile.enterText('User is '+userName+' in Investigation '+investigationTitle);
+        // }
+        // if (tilesToAdd.includes('geometry')) {
+        //     graphToolTile.addPointToGraph(getRandomNumber(15),getRandomNumber(15))
+        //     graphToolTile.addPointToGraph(getRandomNumber(15),getRandomNumber(15))
+        //     graphToolTile.addPointToGraph(getRandomNumber(15),getRandomNumber(15))
+        // }
+        // if (tilesToAdd.includes('table')) {
+        //     tableToolTile.addNewRow();
+        //     tableToolTile.enterData(0, getRandomNumber(15))
+        //     tableToolTile.enterData(1, getRandomNumber(15))
+        //     tableToolTile.addNewRow();
+        //     tableToolTile.enterData(2, getRandomNumber(15))
+        //     tableToolTile.enterData(3, getRandomNumber(15))
+        //     tableToolTile.addNewRow();
+        //     tableToolTile.enterData(4, getRandomNumber(15))
+        //     tableToolTile.enterData(5, getRandomNumber(15))
+        //     tableToolTile.addNewRow();
+        //     tableToolTile.enterData(6, getRandomNumber(15))
+        //     tableToolTile.enterData(7, getRandomNumber(15))
+        // }
+        // if (tilesToAdd.includes('image')) {
+        //     let images = ['fan.png','graph.png','image.png','folder.png','chair.png']
+        //     clueCanvas.addImageTile();
+        //     imageToolTile.getImageToolControl().last().click();
+        //     cy.uploadFile(imageToolTile.imageChooseFileButton(), images[getRandomNumber(images.length-1)], 'image/png')
+        //     cy.wait(3000)
+        // }
+        // if(tilesToAdd.includes('drawing')) {
+        //     let toolArr=['line', 'rect', 'ellipse'];
+        //     let selectedShape = toolArr[getRandomNumber(2)];
+        //     clueCanvas.addTile('drawing');
     
-            switch (selectedShape) {
-                case 'line':
-                    drawToolTile.getDrawToolLine().first().click();
-                    break;
-                case 'rect':
-                    drawToolTile.getDrawToolRectangle().first().click();
-                    break;
-                case 'ellipse':
-                    drawToolTile.getDrawToolEllipse().first().click();
-                    break;        
+        //     switch (selectedShape) {
+        //         case 'line':
+        //             drawToolTile.getDrawToolLine().first().click();
+        //             break;
+        //         case 'rect':
+        //             drawToolTile.getDrawToolRectangle().first().click();
+        //             break;
+        //         case 'ellipse':
+        //             drawToolTile.getDrawToolEllipse().first().click();
+        //             break;        
     
-            }
-            drawToolTile.getDrawTile().first()
-                .trigger('mousedown')
-                .trigger('mousemove',100,250)
-                .trigger('mouseup')
-        }
-    })
+        //     }
+        //     drawToolTile.getDrawTile().first()
+        //         .trigger('mousedown')
+        //         .trigger('mousemove',100,250)
+        //         .trigger('mouseup')
+        // }
+    // })
 })

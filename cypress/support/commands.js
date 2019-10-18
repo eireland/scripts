@@ -90,118 +90,57 @@ Cypress.Commands.add("clearQAData", (data)=>{ //clears data from Firebase (curre
         cy.get('span').should('contain','QA Cleared: OK');
     }
 })
-Cypress.Commands.add("waitForSpinner", () => {
-    cy.get('.progress', { timeout: 60000 }).should('not.exist')
-})
-
-Cypress.Commands.add("login", (username, password) => {
-    cy.visit("https://learn.concord.org/users/sign_in")
-    cy.get("input#user_login").type(username)
-    cy.get("input#user_password").type(password)
+Cypress.Commands.add("login", (baseUrl, testTeacher) => {
+    cy.visit(baseUrl + "/users/sign_in")
+    cy.get("input#user_login").type(testTeacher.username)
+    cy.get("input#user_password").type(testTeacher.password)
     cy.get("form").submit()
 })
-Cypress.Commands.add("loginStaging", (username, password) => {
-    cy.visit("https://learn.staging.concord.org/users/sign_in")
-    cy.get("input#user_login").type(username)
-    cy.get("input#user_password").type(password)
-    cy.get("form").submit()
+Cypress.Commands.add("addAClass", (baseUrl, testClass) => {
+    cy.visit(baseUrl + "/portal/classes/new")
+    cy.get("input#portal_clazz_name").type(testClass.className)
+    cy.get("input#portal_clazz_class_word").type(testClass.classWord)
+    cy.get("select#portal_clazz_school").select(testClass.schoolName)
+    cy.get("input#portal_clazz_grade_levels_12").check().should("be.checked")
+    cy.get("form.new_portal_clazz").submit()
 })
-
-Cypress.Commands.add("populateDocument", (username) => {
-    let tilesToAdd =  getTilesArray();
-    let title =  getInvestigationTitle();
-    cy.log('tilesToAdd: '+tilesToAdd)
-    cy.log('title: '+title)
-    tilesToAdd.forEach((tile)=>{
-        clueCanvas.addTile(tile);
-        cy.wait(1500);
-        addToTile(tile, username, title);
+Cypress.Commands.add("assignActivityToClass", (baseUrl, testClass) => {
+    cy.visit(baseUrl + "/search")
+    cy.get(".search-form__field").find("input").type(testClass.activityName)
+    cy.get("input#go-button").click({force:true})
+    cy.get("input#include_contributed").check().should("be.checked")
+    cy.contains("Assign to a Class").click({force:true})
+    cy.get(".content").find("input").check()
+    cy.get('td > .button').click({force:true})
+    cy.get('.buttons_container > .button').click({force:true})
+})
+Cypress.Commands.add("registerStudents", (baseUrl, testClass) => {
+    cy.visit(baseUrl + "/recent_activity")
+    cy.get("div#clazzes_nav").contains("Classes").click({ force: true }).then(() => {
+        cy.contains(testClass.className).click({force:true})
+        cy.get("li.open--1fle3cuw").eq(1).within(() => {
+            cy.contains("Student Roster").click({force:true})
+        })
     })
+    cy.wait(1000)
+    cy.contains("Register & Add New Student").click({ force: true })
+        for (let i = 0; i < testClass.studentTotal; i++) {
+            let index = i + 1;
+            cy.get("form.new_portal_student").find('input#user_first_name').type(testClass.firstName)
+            cy.get("form.new_portal_student").find('input#user_last_name').type(testClass.lastName + index.toString())
+            cy.get("form.new_portal_student").find('input#user_password').type(testClass.password)
+            cy.get("form.new_portal_student").find('input#user_password_confirmation').type(testClass.password)
+            cy.get("form.new_portal_student").find('.create_button > .pie').click({force:true})
+            cy.wait(1000)
+            cy.waitForSpinnerStudentRegistration()
+            cy.get(".ui-window").within(() => {
+                cy.contains("Cancel").click({force:true})
+            })
+        }
+        cy.get(".ui-window").within(() => {
+            cy.get("input.pie").eq(1).click({force:true})
+        })
 })
-function selectRandomTile(){
-    let tiles = ['text','table','geometry','image','drawing']
-    // let random = Math.floor(Math.random() * Math.floor(tiles.length - 1))
-    let random = getRandomNumber(tiles.length - 1)
-
-    console.log(tiles[random])
-    return (tiles[random]);
-}
-
-function getRandomNumber(max){
-    let number =  Math.floor(Math.random() * Math.floor(max))
-    return number
-}
-
-function getTilesArray(){
-    let i=0;
-    let tilesToAdd=[];
-
-    for (i;i<3;i++) {
-        tilesToAdd.push(selectRandomTile())
-    }
-    return tilesToAdd;
-}
-
-function addToTile(tile, user, title){
-    switch(tile){
-        case 'text':
-            textToolTile.enterText('User is '+user);
-            break;
-        case 'geomtery':
-            graphToolTile.addPointToGraph(getRandomNumber(15),getRandomNumber(15))
-            graphToolTile.addPointToGraph(getRandomNumber(15),getRandomNumber(15))
-            graphToolTile.addPointToGraph(getRandomNumber(15),getRandomNumber(15))
-             break;
-        case 'table':
-            tableToolTile.addNewRow();
-            tableToolTile.enterData(0, getRandomNumber(15))
-            tableToolTile.enterData(1, getRandomNumber(15))
-            tableToolTile.addNewRow();
-            tableToolTile.enterData(2, getRandomNumber(15))
-            tableToolTile.enterData(3, getRandomNumber(15))
-            tableToolTile.addNewRow();
-            tableToolTile.enterData(4, getRandomNumber(15))
-            tableToolTile.enterData(5, getRandomNumber(15))
-            tableToolTile.addNewRow();
-            tableToolTile.enterData(6, getRandomNumber(15))
-            tableToolTile.enterData(7, getRandomNumber(15))
-            break;
-        case 'image':
-            let images = ['fan.png','graph.png','image.png','folder.png','chair.png']
-            clueCanvas.addImageTile();
-            imageToolTile.getImageToolControl().last().click();
-            cy.uploadFile(imageToolTile.imageChooseFileButton(), images[getRandomNumber(images.length-1)], 'image/png')
-            cy.wait(3000);
-            break;
-        case 'drawing':
-                let toolArr=['line', 'rect', 'ellipse'];
-                let selectedShape = toolArr[getRandomNumber(2)];
-                clueCanvas.addTile('drawing');
-        
-                switch (selectedShape) {
-                    case 'line':
-                        drawToolTile.getDrawToolLine().first().click();
-                        break;
-                    case 'rect':
-                        drawToolTile.getDrawToolRectangle().first().click();
-                        break;
-                    case 'ellipse':
-                        drawToolTile.getDrawToolEllipse().first().click();
-                        break;        
-        
-                }
-                drawToolTile.getDrawTile().first()
-                    .trigger('mousedown')
-                    .trigger('mousemove',100,250)
-                    .trigger('mouseup')
-            break;    
-    }
-    return "done!"  
-}
-
-// Cypress.Commands.add("getInvestigationTitle", () => {
-function getInvestigationTitle(){
-    cy.waitForSpinner()
-    clueCanvas.getInvestigationCanvasTitle().should('exist');
-    return clueCanvas.getInvestigationCanvasTitle().text();
-}
+Cypress.Commands.add("waitForSpinnerStudentRegistration", () => {
+    cy.get('.waiting', { timeout: 60000 }).should('not.exist')
+})

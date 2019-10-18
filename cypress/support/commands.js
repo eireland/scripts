@@ -24,6 +24,20 @@
 // -- This is will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 import Header from './elements/common/Header';
+import ClueCanvas from '../support/elements/clue/cCanvas'
+import GraphToolTile from '../support/elements/clue/GraphToolTile'
+import ImageToolTile from '../support/elements/clue/ImageToolTile'
+import DrawToolTile from '../support/elements/clue/DrawToolTile'
+import TextToolTile from '../support/elements/clue/TextToolTile'
+import TableToolTile from '../support/elements/clue/TableToolTile'
+
+let clueCanvas = new ClueCanvas;
+let header = new Header;
+let graphToolTile = new GraphToolTile;
+let imageToolTile = new ImageToolTile;
+let drawToolTile = new DrawToolTile;
+let textToolTile = new TextToolTile;
+let tableToolTile = new TableToolTile;
 
 Cypress.Commands.add("setupGroup", (students, group) => {
     const baseUrl = `${Cypress.config("baseUrl")}`;
@@ -32,7 +46,7 @@ Cypress.Commands.add("setupGroup", (students, group) => {
         problem = 2.3;
     let teacher = 10;
 
-    let header = new Header
+    // let header = new Header
  
     let i=0, j=0;
 
@@ -80,9 +94,114 @@ Cypress.Commands.add("waitForSpinner", () => {
     cy.get('.progress', { timeout: 60000 }).should('not.exist')
 })
 
-Cypress.Commands.add("loginStaging", (username, password) => {
+Cypress.Commands.add("login", (username, password) => {
     cy.visit("https://learn.concord.org/users/sign_in")
     cy.get("input#user_login").type(username)
     cy.get("input#user_password").type(password)
     cy.get("form").submit()
 })
+Cypress.Commands.add("loginStaging", (username, password) => {
+    cy.visit("https://learn.staging.concord.org/users/sign_in")
+    cy.get("input#user_login").type(username)
+    cy.get("input#user_password").type(password)
+    cy.get("form").submit()
+})
+
+Cypress.Commands.add("populateDocument", (username) => {
+    let tilesToAdd =  getTilesArray();
+    let title =  getInvestigationTitle();
+    cy.log('tilesToAdd: '+tilesToAdd)
+    cy.log('title: '+title)
+    tilesToAdd.forEach((tile)=>{
+        clueCanvas.addTile(tile);
+        cy.wait(1500);
+        addToTile(tile, username, title);
+    })
+})
+function selectRandomTile(){
+    let tiles = ['text','table','geometry','image','drawing']
+    // let random = Math.floor(Math.random() * Math.floor(tiles.length - 1))
+    let random = getRandomNumber(tiles.length - 1)
+
+    console.log(tiles[random])
+    return (tiles[random]);
+}
+
+function getRandomNumber(max){
+    let number =  Math.floor(Math.random() * Math.floor(max))
+    return number
+}
+
+function getTilesArray(){
+    let i=0;
+    let tilesToAdd=[];
+
+    for (i;i<3;i++) {
+        tilesToAdd.push(selectRandomTile())
+    }
+    return tilesToAdd;
+}
+
+function addToTile(tile, user, title){
+    switch(tile){
+        case 'text':
+            textToolTile.enterText('User is '+user);
+            break;
+        case 'geomtery':
+            graphToolTile.addPointToGraph(getRandomNumber(15),getRandomNumber(15))
+            graphToolTile.addPointToGraph(getRandomNumber(15),getRandomNumber(15))
+            graphToolTile.addPointToGraph(getRandomNumber(15),getRandomNumber(15))
+             break;
+        case 'table':
+            tableToolTile.addNewRow();
+            tableToolTile.enterData(0, getRandomNumber(15))
+            tableToolTile.enterData(1, getRandomNumber(15))
+            tableToolTile.addNewRow();
+            tableToolTile.enterData(2, getRandomNumber(15))
+            tableToolTile.enterData(3, getRandomNumber(15))
+            tableToolTile.addNewRow();
+            tableToolTile.enterData(4, getRandomNumber(15))
+            tableToolTile.enterData(5, getRandomNumber(15))
+            tableToolTile.addNewRow();
+            tableToolTile.enterData(6, getRandomNumber(15))
+            tableToolTile.enterData(7, getRandomNumber(15))
+            break;
+        case 'image':
+            let images = ['fan.png','graph.png','image.png','folder.png','chair.png']
+            clueCanvas.addImageTile();
+            imageToolTile.getImageToolControl().last().click();
+            cy.uploadFile(imageToolTile.imageChooseFileButton(), images[getRandomNumber(images.length-1)], 'image/png')
+            cy.wait(3000);
+            break;
+        case 'drawing':
+                let toolArr=['line', 'rect', 'ellipse'];
+                let selectedShape = toolArr[getRandomNumber(2)];
+                clueCanvas.addTile('drawing');
+        
+                switch (selectedShape) {
+                    case 'line':
+                        drawToolTile.getDrawToolLine().first().click();
+                        break;
+                    case 'rect':
+                        drawToolTile.getDrawToolRectangle().first().click();
+                        break;
+                    case 'ellipse':
+                        drawToolTile.getDrawToolEllipse().first().click();
+                        break;        
+        
+                }
+                drawToolTile.getDrawTile().first()
+                    .trigger('mousedown')
+                    .trigger('mousemove',100,250)
+                    .trigger('mouseup')
+            break;    
+    }
+    return "done!"  
+}
+
+// Cypress.Commands.add("getInvestigationTitle", () => {
+function getInvestigationTitle(){
+    cy.waitForSpinner()
+    clueCanvas.getInvestigationCanvasTitle().should('exist');
+    return clueCanvas.getInvestigationCanvasTitle().text();
+}

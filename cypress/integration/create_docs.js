@@ -47,10 +47,10 @@ function getTilesArray(){
     return tilesToAdd;
 }
 
-function addToTile(tile, user, title){
+function addToTile(tile,user,tilesAdded){
     switch(tile){
         case 'text':
-            textToolTile.enterText('User is '+user+' in Investigation '+title);
+            textToolTile.enterText('User is '+user+' tiles added were: '+tilesAdded);
             break;
         case 'geomtery':
             graphToolTile.addPointToGraph(getRandomNumber(15),getRandomNumber(15))
@@ -104,9 +104,10 @@ function addToTile(tile, user, title){
 }
 
 function getInvestigationTitle(){
-    return clueCanvas.getInvestigationCanvasTitle().then(($title)=>{
-        return $title.text()
-    })
+    // return clueCanvas.getInvestigationCanvasTitle().then(($title)=>{
+    //     return $title.text()
+    // })
+    return clueCanvas.getInvestigationCanvasTitle().text();
 }
 
 function getUsername(){
@@ -115,22 +116,24 @@ function getUsername(){
     })
 }
 
-context('add content to document',()=>{
-    let tilesToAdd=getTilesArray();
+context('add content to document',function(){
     it('populate a canvas with random tiles',function(){
-        let students=['1','2','3','4']
+        let students=['1','2','3','4'];
+        let i=0;
         students.forEach(function(student){
-            cy.visit('https://collaborative-learning.concord.org/branch/master/?appMode=qa&fakeUser=student:'+student+'&qaGroup=9&fakeClass=9&problem=1.2')
-            cy.get('.progress', {timeout:60000}).should('not.exist');
+            let tilesToAdd=getTilesArray();
+            console.log("tilesToAdd: "+tilesToAdd);
+        
+            cy.visit('https://collaborative-learning.concord.org/branch/master/?appMode=qa&demoName=DataCreation&fakeUser=student:'+student+'&qaGroup=9&fakeClass=9&problem=1.2')
+            cy.wait(3000);
+            cy.waitForSpinner();
 
-            let title = getInvestigationTitle();
-            let userName = getUsername();
-
+            let user=students[i];
             tilesToAdd.forEach((tile)=>{
                 clueCanvas.addTile(tile);
-                addToTile(tile, userName, title);
+                addToTile(tile,user,tilesToAdd);
             })
+            i++
         })
-
     })
 })

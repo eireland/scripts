@@ -110,7 +110,7 @@ function getUsername(){
 }
 
 function getStudentRunLink(studentUid, offeringId) {
-    return "https://learn.staging.concord.org/users/" + studentUid + "/portal/offerings/" + offeringId + ".run_resource_html"
+    return "https://learn.concord.org/users/" + studentUid + "/portal/offerings/" + offeringId + ".run_resource_html"
 }
 
 async function populateDocument(student) {
@@ -125,25 +125,25 @@ async function populateDocument(student) {
 }
 
 context("CLUE Dashboard Data Setup", () => {
-    // const offeringId = 40557;
-    const offeringId = 1219;
-    // const portalProductionUrl = "https://learn.concord.org/"
-    const portalStagingUrl = "https://learn.staging.concord.org"
+    const offeringId = 40557;
+    // const offeringId = 1219;
+    const portalProductionUrl = "https://learn.concord.org/"
+    // const portalStagingUrl = "https://learn.staging.concord.org"
     // let tilesToAdd=getTilesArray();
 
     it("Visits student CLUE documents and adds data", () => {
-        cy.fixture("staging-student-ids.json").as("studentUids")
+        cy.fixture("student-ids.json").as("studentUids")
         cy.get("@studentUids").then((studentUids) => {
-            let index=1, group=1;
+            let index=1,  group=1;
             for (var student in studentUids) {
-                cy.loginStaging(studentUids[student].username, "tardis")
+                cy.login(studentUids[student].username, "password")
                 //get student url for clue launch
                 let studentClueLaunchUrl = getStudentRunLink(studentUids[student].uid, offeringId)
                 cy.visit(studentClueLaunchUrl)
                 cy.wait(3000)
                 cy.waitForSpinner();
 
-                if(((index==1)||(index%5)==0)) { //select a group from the dropdown
+                if((index==1)||(((index-1)%4)==0)) { //select a group from the dropdown
                     cy.get('select').select('Group ' + group);
                     cy.get('[value="Create Group"]').click();
                     cy.wait(1000); 
@@ -155,10 +155,13 @@ context("CLUE Dashboard Data Setup", () => {
                 cy.populateDocument(studentUids[student].username)
 
                 //log out
-                cy.visit(portalStagingUrl)
+                cy.visit(portalProductionUrl)
                 cy.get(".portal-pages-main-nav-contain").find("a.log-in").click({force:true})
                 index++
-                if((index%5)==0) {group++}
+                if(((index-1)%4)==0) {
+                    group++;
+                } 
+                
             }
         })
     })

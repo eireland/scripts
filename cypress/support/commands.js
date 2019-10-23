@@ -39,9 +39,9 @@ let drawToolTile = new DrawToolTile;
 let textToolTile = new TextToolTile;
 let tableToolTile = new TableToolTile;
 
-Cypress.Commands.add("setupGroup", (students, group) => {
-    const baseUrl = `${Cypress.config("baseUrl")}`;
+const baseUrl = `${Cypress.config("baseUrl")}`;
 
+Cypress.Commands.add("setupGroup", (students, group) => {
     let qaClass = 10,
         problem = 2.3;
     let teacher = 10;
@@ -83,19 +83,19 @@ Cypress.Commands.add("uploadFile",(selector, filename, type="")=>{
     })
 })
 Cypress.Commands.add("clearQAData", (data)=>{ //clears data from Firebase (currently data='all' is the only one supported)
-    const baseUrl = `${Cypress.config("baseUrl")}`;
     if (data=='all') {
         cy.visit(baseUrl + '?appMode=qa&qaClear=' + data + '&fakeClass=1&fakeUser=student:1');
         cy.wait(3000);
         cy.get('span').should('contain','QA Cleared: OK');
     }
 })
-Cypress.Commands.add("login", (baseUrl, testTeacher) => {
-    cy.visit(baseUrl + "/users/sign_in")
-    cy.get("input#user_login").type(testTeacher.username)
-    cy.get("input#user_password").type(testTeacher.password)
+Cypress.Commands.add("login", (username, password) => {
+    cy.visit("https://learn.concord.org/users/sign_in")
+    cy.get("input#user_login").type(username)
+    cy.get("input#user_password").type(password)
     cy.get("form").submit()
 })
+
 Cypress.Commands.add("addAClass", (baseUrl, testClass) => {
     cy.visit(baseUrl + "/portal/classes/new")
     cy.get("input#portal_clazz_name").type(testClass.className)
@@ -143,6 +143,17 @@ Cypress.Commands.add("registerStudents", (baseUrl, testClass) => {
 })
 Cypress.Commands.add("waitForSpinnerStudentRegistration", () => {
     cy.get('.waiting', { timeout: 60000 }).should('not.exist')
+})
+
+Cypress.Commands.add("loginStaging", (username, password) => {
+    cy.visit("https://learn.staging.concord.org/users/sign_in")
+    cy.get("input#user_login").type(username)
+    cy.get("input#user_password").type(password)
+    cy.get("form").submit()
+})
+
+Cypress.Commands.add("waitForSpinner", () => {
+    cy.get('.progress', { timeout: 60000 }).should('not.exist')
 })
 
 Cypress.Commands.add("populateDocument", (username) => {

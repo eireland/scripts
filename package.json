@@ -12,7 +12,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "test:create_data": "npx cypress open",
-    "create_data": "npx cypress run ----config video=false,defaultCommandTimeout=8000"
+    "create_data:clue": "npx cypress run --spec 'cypress/integration/generate-clue-student-data.js' --config video=false,defaultCommandTimeout=8000",
+    "create_data:dataflow": "npx cypress run --spec 'cypress/integration/generate-dataflow-student-data.js' --config video=false,defaultCommandTimeout=8000"
   },
   "author": "",
   "license": "ISC"

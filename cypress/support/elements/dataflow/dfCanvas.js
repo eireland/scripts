@@ -1,21 +1,21 @@
+import Dialog from "../common/Dialog";
+import Canvas from "../common/Canvas";
+
+const dialog = new Dialog;
+const canvas = new Canvas
+
 //Dataflow canvas and toolbar
 class dfCanvas{
-    // dfCanvasTitleEl(){
-    //     return '[data-test=personal-doc-title]'
-    // }
-    // getDfCanvasTitle(){
-    //     return cy.get(this.dfCanvasTitleEl());
-    // }
     getDataFlowToolTile(){
         return cy.get('.single-workspace .dataflow-tool.editable');
     }
     getProgramToolbar(){
-        return cy.get('.single-workspace [data-test=program-toolbar');
+        return cy.get('.single-workspace [data-test=program-toolbar]');
     }
     getProgramToolbarButtons(){
         return cy.get('.single-workspace [data-test=program-toolbar] button')
     }
-    openBlock(blockType){
+    openBlock(blockType){ //blockType=['sensor','number','generator','math','logic','transform','relay','data-storage']
         cy.get('.single-workspace [data-test=program-toolbar] button').contains(blockType).click();
     }
     resetPlots(){
@@ -71,6 +71,27 @@ class dfCanvas{
     }
     zoomOut(){
         this.getZoomOutButton().click().click().click().click().click();
+    }
+
+    createNewProgram(title){
+        canvas.getNewDocumentIcon().click()
+            .then(()=>{
+                // dialog.getDialogTitle().should('exist').and('contains','Create New Dataset');
+                dialog.getDialogTextInput().click().type('{selectall}{backspace}'+title);
+                dialog.getDialogOKButton().click();
+            })
+        cy.wait(3000)    
+    }
+
+    getProgramRunningCover(){
+        return cy.get('.editor.half .cover.running')
+    }
+    getProgramGraph(){
+        return cy.get('.program-graph')
+    }
+
+    getFullGraph(){
+        return cy.get('.program-graph.full')
     }
 }
 export default dfCanvas;

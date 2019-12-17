@@ -185,11 +185,18 @@ class dfBlock{
     getStorageNameTextField(){
         return cy.get(this.storageNameTextFieldEl());
     }
-    storageIntervalTextFieldEl(){
-        return'.single-workspace .node.data-storage [title=interval] input'
+    storageIntervalDropdownEl(){
+        return'.single-workspace .node.data-storage [title=interval] .node-select.interval'
     }
-    getStorageIntervalTextField(){
-        return cy.get(this.storageIntervalTextFieldEl())
+    getStorageIntervalDropdown(){
+        return cy.get(this.storageIntervalDropdownEl())
+    }
+    getStorageIntervalDropdownSelection(){
+        return cy.get('.interval.selectable .label')
+    }
+    selectStorageIntervalTime(interval){
+        this.getStorageIntervalDropdown().click();
+        this.getStorageIntervalDropdownSelection().contains(interval).click();
     }
     storageSequenceTextFieldEl(sequenceNum=1){
         return '.single-workspace .node.data-storage [title=sequence'+sequenceNum+'] input'

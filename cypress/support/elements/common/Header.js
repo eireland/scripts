@@ -1,4 +1,4 @@
-class Header {
+class Header{
     getClassName(){
         return cy.get('[data-test=user-class]');
     }
@@ -7,6 +7,9 @@ class Header {
     }
     getProblemTitle(){
         return cy.get('[data-test=problem-title]')
+    }
+    getVersionNumber(){
+        return cy.get('.app-header .version')
     }
 }
 export default Header;

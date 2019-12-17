@@ -1,3 +1,7 @@
+import Dialog from "./Dialog";
+
+const dialog = new Dialog
+
 class Canvas{
     canvas(){
         return cy.get('.single-workspace:first');
@@ -15,6 +19,7 @@ class Canvas{
         return cy.get('[data-test=canvas]:first .document-content')
     }
 
+    //Header elements
     personalDocTitleEl(){
         return '[data-test=personal-doc-title]'
     }
@@ -31,43 +36,91 @@ class Canvas{
         return cy.get('[data-test=publish-icon]');
     }
 
+    getPersonalPublishIcon(){
+        return cy.get('[data-test=other-doc-publish-icon]');
+    }
+
     getEditTitleIcon(){
         return cy.get('[data-test=personal-doc-title] [data-test=edit-icon]')
     }
 
-    //Edit Title Dialog
-    getDialogTitle(){
-        return cy.get('[data-test=dialog-title]');
+    getCopyIcon(){
+        return cy.get('[data-test=copy-icon]')
     }
 
-    getDialogTextInput(){
-        return cy.get('[data-test=dialog-text-input]');
+    getDeleteIcon(){
+        return cy.get('[data-test=delete-icon]')
     }
 
-    getDialogOKButton(){
-        return cy.get('[data-test=dialog-buttons] #okButton');
-    }
-
-    getDialogCancelButton(){
-        return cy.get('[data-test=dialog-buttons] #cancelButton');
-    }
-
-    createNewDocument(title){
+    createNewProblemDocument(title){
         this.getNewDocumentIcon().click()
             .then(()=>{
-                this.getDialogTitle().should('exist').contains('Create Personal Document');
-                this.getDialogTextInput().click().type('{selectall}{backspace}'+title);
-                this.getDialogOKButton().click();
+                dialog.getDialogTitle().should('exist').contains('Create Problem Workspace');
+                dialog.getDialogTextInput().click().type('{selectall}{backspace}'+title);
+                dialog.getDialogOKButton().click();
+            })
+        cy.wait(3000)    
+    }
+    createNewExtraDocument(title){
+        this.getNewDocumentIcon().click()
+            .then(()=>{
+                //dialog.getDialogTitle().should('exist').and('contains','Create Extra Workspace'); //cannot be too specific because of difference bet. CLUE and Dataflow
+                dialog.getDialogTextInput().click().type('{selectall}{backspace}'+title);
+                dialog.getDialogOKButton().click();
             })
         cy.wait(3000)    
     }
 
+    editTitle(title){
+        this.getEditTitleIcon().click()
+            .then(function(){
+                dialog.getDialogTitle().should('exist').and('contain','Rename');
+                dialog.getDialogTextInput().click().type('{selectall}{backspace}'+title);
+                dialog.getDialogOKButton().click();
+            })
+    }
+
+    copyDocument(title){
+        this.getCopyIcon().click()
+            .then(function(){
+                dialog.getDialogTitle().should('exist').contains('Copy Problem Workspace');
+                dialog.getDialogTextInput().click().type('{selectall}{backspace}'+title);
+                dialog.getDialogOKButton().click(); 
+            })
+    }
+
+    copyExtraDocument(title){
+        this.getCopyIcon().click()
+            .then(function(){
+                dialog.getDialogTitle().should('exist').contains('Copy Extra Workspace');
+                dialog.getDialogTextInput().click().type('{selectall}{backspace}'+title);
+                dialog.getDialogOKButton().click(); 
+            })
+    }
+
+    deleteDocument(){
+        this.getDeleteIcon().click().then(()=>{
+            dialog.getDialogTitle().should('exist').contains('Delete Workspace');
+            dialog.getDialogOKButton().click();
+        })
+    cy.wait(3000)    
+    }
+
+    publishPersonalCanvas(){
+        this.getPersonalPublishIcon().click()
+            .then(()=>{
+                dialog.getDialogTitle().should('exist').contains('Published');
+                dialog.getDialogOKButton().click();
+                dialog.getDialogTitle().should('not.exist');
+                this.getPersonalPublishIcon().should('exist');
+            });
+    }
     publishCanvas(){
         this.getPublishIcon().click()
             .then(()=>{
-                this.getDialogTitle().should('exist').contains('Published');
-                this.getDialogOKButton().click();
-                this.getDialogTitle().should('not.exist');
+                dialog.getDialogTitle().should('exist').contains('Published');
+                dialog.getDialogOKButton().click();
+                dialog.getDialogTitle().should('not.exist');
                 this.getPublishIcon().should('exist');
             });
     }
